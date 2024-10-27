@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Info Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1E1E1E; /* Dark background */
+            color: #FFFFFF; /* Light text color */
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4285F4; /* Google Blue */
+        }
+
+        textarea {
+            width: 97%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            font-size: 16px;
+            background-color: #2A2A2A; /* Dark textarea */
+            color: #FFFFFF; /* Light text color */
+        }
+
+        button {
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .info-button {
+            background-color: #4285F4; /* Google Blue */
+        }
+
+        .info-button:hover {
+            background-color: #357ab8; /* Darker Blue */
+        }
+
+        .translate-button {
+            background-color: #DB4437; /* Google Red */
+        }
+
+        .translate-button:hover {
+            background-color: #c62828; /* Darker Red */
+        }
+
+        .summary-button {
+            background-color: #F4B400; /* Google Yellow */
+        }
+
+        .summary-button:hover {
+            background-color: #e0a400; /* Darker Yellow */
+        }
+
+        h2 {
+            color: #0F9D58; /* Google Green */
+            margin-top: 30px;
+            display: inline-block; /* Aligns button next to the heading */
+        }
+
+        .section {
+            margin-top: 20px;
+        }
+
+        #output, #translated_output, #summary_output {
+            background-color: #2A2A2A; /* Dark output areas */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            min-height: 60px;
+            color: #FFFFFF; /* Light text color */
+        }
+
+        select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+            background-color: #2A2A2A; /* Dark select */
+            color: #FFFFFF; /* Light text color */
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #2D2D2D; /* Main window color */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Separate button alignment for each section */
+        .info-button {
+            display: block;
+            margin-top: -50px;
+            margin-left: 700px;
+        }
+
+        .translate-button {
+            margin-top: -20px;
+            margin-left: 690px;
+        }
+
+        .summary-button {
+            margin-top: -40px;
+            margin-left: 690px;
+        }
+    </style>
+    <script>
+        async function getInfo() {
+            const userInput = document.getElementById('user_input').value;
+            const response = await fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `user_input=${encodeURIComponent(userInput)}`
+            });
+            const generatedText = await response.text();
+            document.getElementById('output').innerText = generatedText;
+        }
+
+        async function translateText() {
+            const generatedText = document.getElementById('output').innerText;
+            const targetLanguage = document.getElementById('target_language').value;
+            const response = await fetch('/translate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `generated_text=${encodeURIComponent(generatedText)}&target_language=${targetLanguage}`
+            });
+            const translatedText = await response.text();
+            document.getElementById('translated_output').innerText = translatedText;
+        }
+
+        async function summarizeText() {
+            const generatedText = document.getElementById('output').innerText;
+            const response = await fetch('/summarize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `generated_text=${encodeURIComponent(generatedText)}`
+            });
+            const summaryText = await response.text();
+            document.getElementById('summary_output').innerText = summaryText;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Info Generator</h1>
+        <textarea id="user_input" placeholder="Enter your query here..."></textarea>
+
+        <div class="section">
+            <h2>Generated Content:</h2>
+            <button class="info-button" onclick="getInfo()">Get Info</button>
+            <div id="output"></div>
+        </div>
+
+        <div class="section">
+            <h2>Translate to:</h2>
+            <select id="target_language">
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="zh-cn">Chinese</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="ar">Arabic</option>
+                <option value="hi">Hindi</option>
+            </select>
+            <button class="translate-button" onclick="translateText()">Translate</button>
+            <div id="translated_output"></div>
+        </div>
+
+        <div class="section">
+            <h2>Summary:</h2>
+            <button class="summary-button" onclick="summarizeText()">Summary</button>
+            <div id="summary_output"></div>
+        </div>
+    </div>
+</body>
+</html>
